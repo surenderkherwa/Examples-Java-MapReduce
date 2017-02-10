@@ -14,6 +14,8 @@ import org.apache.hadoop.io.LongWritable;
 import org.apache.hadoop.io.Text;
 import org.apache.hadoop.mapreduce.Mapper;
 
+import com.movielens.drivers.MovieLensDriver;
+
 /**
  * 
  * @author surender.kumar
@@ -21,6 +23,7 @@ import org.apache.hadoop.mapreduce.Mapper;
 public class MovieRatingsCountCacheFileMapSideJoinMapper extends Mapper<LongWritable, Text, Text, LongWritable> {
 	
 	private static Map<String, String> movieMap = new HashMap<String, String>();
+
 
 	protected void setup(Context context) throws IOException, InterruptedException {
 		String line = null;
@@ -30,7 +33,7 @@ public class MovieRatingsCountCacheFileMapSideJoinMapper extends Mapper<LongWrit
 		BufferedReader br = new BufferedReader(new InputStreamReader(fs.open(fileToJoin)));
 		br.readLine();
 		while ((line = br.readLine()) != null) {
-			String[] data = line.split("[,]");
+			String[] data = line.split(MovieLensDriver.REGEX_SPLIT_COMMA);
 			movieMap.put(data[0], data[1]);
 		}
 		br.close();
@@ -39,7 +42,7 @@ public class MovieRatingsCountCacheFileMapSideJoinMapper extends Mapper<LongWrit
 	public void map(LongWritable key, Text value, Context context) throws IOException, InterruptedException {
 		
 		String s = value.toString();
-		String[] words = s.split(",");
+		String[] words = s.split(MovieLensDriver.REGEX_SPLIT_COMMA);
 		String movieId = words[1];
 		String movieName = movieMap.get(movieId);
 		if(key.get() != 0) {

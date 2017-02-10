@@ -63,7 +63,10 @@ public class MovieLensDriver {
 	final static Path movieRatingsCountCacheFileReduceSideJoin = new Path(outputPath + File.separator + "movieRatingsCountCacheFileReduceSideJoin_" + System.currentTimeMillis());
 	final static Path movieRatingsCountReduceSideJoin = new Path(outputPath + File.separator + "movieRatingsCountReduceSideJoin_" + System.currentTimeMillis());
 	
+	public static String REGEX_SPLIT_COMMA = ",(?=([^\"]*\"[^\"]*\")*[^\"]*$)";
+	
 	private static Configuration conf;
+	
 
 	private static void setup() {
 		
@@ -74,7 +77,7 @@ public class MovieLensDriver {
 		
 		setup();
 		
-		int option = 9;	
+		int option = 7;	
 		switch(option) {
 		
 			/* 3. List all the Movie IDs which have been rated (Movie Id with at least one user rating it). */
@@ -121,6 +124,11 @@ public class MovieLensDriver {
 			case 9: 
 				getMovieRatingsCountCustomKeyJoin(conf);
 				break;
+				
+			/* 10. Add line numbers columns to ratings file */
+			case 10: 
+				addLineNumbersToRatingsRecords(conf);
+				break;
 					
 			default:  
 				getRatedMovies(conf); 
@@ -143,11 +151,12 @@ public class MovieLensDriver {
 	 * 3. List all the Movie IDs which have been rated (Movie Id with at least
 	 * one user rating it).
 	 * 
+	 * @param conf
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 * @throws InterruptedException
 	 */
-	public static void getRatedMovies(Configuration conf) throws IOException, ClassNotFoundException, InterruptedException {
+	private static void getRatedMovies(Configuration conf) throws IOException, ClassNotFoundException, InterruptedException {
 
 		Job job = Job.getInstance(conf, "RatedMovies");
 		job.setJarByClass(MovieLensDriver.class);
@@ -166,11 +175,12 @@ public class MovieLensDriver {
 	 * 4. List all the Users who have rated the movies (Users who have rated at
 	 * least one movie).
 	 * 
+	 * @param conf
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 * @throws InterruptedException
 	 */
-	public static void getUsersWhoRated(Configuration conf) throws IOException, ClassNotFoundException, InterruptedException {
+	private static void getUsersWhoRated(Configuration conf) throws IOException, ClassNotFoundException, InterruptedException {
 
 		Job job = Job.getInstance(conf, "UsersWhoRated");
 		job.setJarByClass(MovieLensDriver.class);
@@ -188,11 +198,12 @@ public class MovieLensDriver {
 	/**
 	 * 2. List all the users and the number of ratings they have done for a movie.
 	 * 
+	 * @param conf
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 * @throws InterruptedException
 	 */
-	public static void getUserRatingsCount(Configuration conf) throws IOException, ClassNotFoundException, InterruptedException {
+	private static void getUserRatingsCount(Configuration conf) throws IOException, ClassNotFoundException, InterruptedException {
 
 		Job job = Job.getInstance(conf, "UserRatingsCount");
 		job.setJarByClass(MovieLensDriver.class);
@@ -211,11 +222,12 @@ public class MovieLensDriver {
 	 * 5. List of all the User with the max, min., average ratings they have
 	 * given against any movie.
 	 * 
+	 * @param conf
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 * @throws InterruptedException
 	 */
-	public static void getUserRatings(Configuration conf) throws IOException, ClassNotFoundException, InterruptedException {
+	private static void getUserRatings(Configuration conf) throws IOException, ClassNotFoundException, InterruptedException {
 
 		Job job = Job.getInstance(conf, "UserRatings");
 		job.setJarByClass(MovieLensDriver.class);
@@ -234,11 +246,12 @@ public class MovieLensDriver {
 	 * 6. List all the Movies with the max, min., average ratings given by any
 	 * user.
 	 * 
+	 * @param conf
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 * @throws InterruptedException
 	 */
-	public static void getMovieRatings(Configuration conf) throws IOException, ClassNotFoundException, InterruptedException {
+	private static void getMovieRatings(Configuration conf) throws IOException, ClassNotFoundException, InterruptedException {
 
 		Job job = Job.getInstance(conf, "MovieRatings");
 		job.setJarByClass(MovieLensDriver.class);
@@ -258,11 +271,12 @@ public class MovieLensDriver {
 	/**
 	 * 1. List all the movies and the number of ratings.
 	 * 
+	 * @param conf
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 * @throws InterruptedException
 	 */
-	public static void getMovieRatingsCount(Configuration conf) throws IOException, ClassNotFoundException, InterruptedException {
+	private static void getMovieRatingsCount(Configuration conf) throws IOException, ClassNotFoundException, InterruptedException {
 
 		Job job = Job.getInstance(conf, "MovieRatingsCount");
 		job.setJarByClass(MovieLensDriver.class);
@@ -283,11 +297,12 @@ public class MovieLensDriver {
 	 * 7.
 	 * 1. List all the movies and the number of ratings.
 	 * 
+	 * @param conf
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 * @throws InterruptedException
 	 */
-	public static void getMovieRatingsCountCacheFileMapSideJoin(Configuration conf) throws IOException, ClassNotFoundException, InterruptedException {
+	private static void getMovieRatingsCountCacheFileMapSideJoin(Configuration conf) throws IOException, ClassNotFoundException, InterruptedException {
 
 		Job job = Job.getInstance(conf, "MovieRatingsCountWithMapSideJoin");
 		job.setJarByClass(MovieLensDriver.class);
@@ -311,11 +326,12 @@ public class MovieLensDriver {
 	 * 8.
 	 * 1. List all the movies and the number of ratings.
 	 * 
+	 * @param conf
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 * @throws InterruptedException
 	 */
-	public static void getMovieRatingsCountCacheFileReduceSideJoin(Configuration conf) throws IOException, ClassNotFoundException, InterruptedException {
+	private static void getMovieRatingsCountCacheFileReduceSideJoin(Configuration conf) throws IOException, ClassNotFoundException, InterruptedException {
 
 		Job job = Job.getInstance(conf, "MovieRatingsCountWithReduceSideJoin");
 		job.setJarByClass(MovieLensDriver.class);
@@ -338,11 +354,12 @@ public class MovieLensDriver {
 	 * 9.
 	 * 1. List all the movies and the number of ratings.
 	 * 
+	 * @param conf
 	 * @throws IOException
 	 * @throws ClassNotFoundException
 	 * @throws InterruptedException
 	 */
-	public static void getMovieRatingsCountCustomKeyJoin(Configuration conf) throws IOException, ClassNotFoundException, InterruptedException {
+	private static void getMovieRatingsCountCustomKeyJoin(Configuration conf) throws IOException, ClassNotFoundException, InterruptedException {
 
 		Job job = Job.getInstance(conf, "MovieRatingsCountReduceSideJoin");
 		job.setJarByClass(MovieLensDriver.class);
@@ -359,6 +376,15 @@ public class MovieLensDriver {
 		job.setGroupingComparatorClass(PairedKeyComparator.class);
 		
 		job.waitForCompletion(true);
+	}
+	
+	/**
+	 * 
+	 * @param conf
+	 */
+	private static void addLineNumbersToRatingsRecords(Configuration conf) {
+		// TODO Auto-generated method stub
+		
 	}
 
 }
